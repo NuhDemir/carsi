@@ -1,22 +1,69 @@
 // src/pages/Home.jsx
-import { useEffect } from 'react';
-import { Box, SimpleGrid, Text, Alert, AlertIcon, Heading, VStack, Flex, Button } from '@chakra-ui/react';
-import { FiGrid, FiList } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Box, SimpleGrid, Text, Alert, AlertIcon, Heading, VStack, Flex } from '@chakra-ui/react';
 import { useProductContext } from '../context/ProductContext.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 
 const Home = () => {
-  const { products, loading, error, fetchProducts } = useProductContext();
+  // 1. URL'den categoryId'yi alıyoruz. Eğer yoksa undefined olacak.
+  const { categoryId } = useParams();
+  const { 
+    products, 
+    categories,
+    loading, 
+    error, 
+    fetchProducts, 
+    filterByCategory,
+    fetchCategories // Kategori adını bulmak için kategorilere ihtiyacımız var
+  } = useProductContext();
 
+  // 2. Sayfa başlığını tutmak için bir state oluşturuyoruz.
+  const [pageTitle, setPageTitle] = useState('Tüm Ürünler');
+  const [pageDescription, setPageDescription] = useState('');
+
+  // 3. Kategori verilerini çekmek için (eğer henüz çekilmediyse)
   useEffect(() => {
-    // Component yüklendiğinde ve products boşsa ürünleri çek
-    if (products.length === 0) {
-      fetchProducts();
+    if (categories.length === 0) {
+      fetchCategories();
     }
-  }, [fetchProducts, products.length]);
+  }, [categories.length, fetchCategories]);
 
-  if (loading && products.length === 0) {
+  // 4. categoryId değiştiğinde veya bileşen ilk yüklendiğinde çalışacak ana effect
+  useEffect(() => {
+    if (categoryId) {
+      // Eğer bir kategori ID'si varsa, o kategoriye göre filtrele
+      filterByCategory(categoryId);
+      
+      // Başlığı güncellemek için ilgili kategoriyi bul
+      const category = categories.find(cat => cat._id === categoryId);
+      if (category) {
+        setPageTitle(category.name);
+        setPageDescription(`${category.productCount} ürün bulundu`);
+      } else {
+        setPageTitle('Kategori'); // Kategori yüklenene kadar geçici başlık
+        setPageDescription('');
+      }
+    } else {
+      // Eğer kategori ID'si yoksa, tüm ürünleri getir
+      fetchProducts();
+      setPageTitle('Tüm Ürünler');
+      setPageDescription(''); // Ana sayfada ürün sayısını göstermeyebiliriz veya products.length kullanabiliriz
+    }
+    // Bağımlılıklar: categoryId değiştiğinde bu effect yeniden çalışmalı.
+    // categories'i de ekliyoruz ki kategori bilgileri geldiğinde başlık güncellenebilsin.
+  }, [categoryId, filterByCategory, fetchProducts, categories]);
+  
+  // products.length'i kullanarak ana sayfa açıklamasını güncelleyelim.
+  useEffect(() => {
+      if (!categoryId) {
+          setPageDescription(`${products.length} ürün bulundu`);
+      }
+  }, [products.length, categoryId]);
+
+
+  if (loading) {
     return <LoadingSpinner text="Ürünler yükleniyor..." />;
   }
 
@@ -31,27 +78,22 @@ const Home = () => {
 
   return (
     <Box>
-      {/* Sayfa Başlığı ve Kontroller */}
       <Flex
         justifyContent="space-between"
         alignItems="center"
         mb={{ base: 6, md: 8 }}
-        wrap="wrap"
-        gap={4}
       >
         <VStack align="start" spacing={1}>
+          {/* 5. Dinamik başlığı burada kullanıyoruz. */}
           <Heading as="h1" size="lg" fontWeight="semibold">
-            Tüm Ürünler
+            {pageTitle}
           </Heading>
-          <Text color={{ base: 'gray.600', _dark: { color: 'gray.400' } }}>
-            {products.length} ürün bulundu
-          </Text>
+          {pageDescription && (
+            <Text color={{ base: 'gray.600', _dark: { color: 'gray.400' } }}>
+              {pageDescription}
+            </Text>
+          )}
         </VStack>
-        {/* Opsiyonel: Grid/Liste görünümü butonu eklenebilir */}
-        <Flex gap={2}>
-            <Button leftIcon={<FiGrid />} variant="outline">Grid</Button>
-            <Button leftIcon={<FiList />} variant="ghost">Liste</Button>
-        </Flex>
       </Flex>
 
       {products.length > 0 ? (
@@ -69,7 +111,7 @@ const Home = () => {
           py={20}
           color={{ base: 'gray.600', _dark: { color: 'gray.400' } }}
         >
-          Gösterilecek ürün bulunamadı.
+          Bu kategoride gösterilecek ürün bulunamadı.
         </Text>
       )}
     </Box>
