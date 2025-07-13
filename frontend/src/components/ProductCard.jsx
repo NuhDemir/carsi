@@ -1,80 +1,95 @@
+// src/components/ProductCard.jsx
 import {
   Box,
   Image,
   Text,
-  Stack,
-  Button,
+  VStack,
+  HStack,
+  IconButton,
   useColorModeValue,
-  Flex,
-  Badge,
+  AspectRatio,
+  Tooltip,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import { FiPlus } from 'react-icons/fi'; // DEĞİŞİKLİK: İkon paketi kullanıldı.
 
 const ProductCard = ({ product }) => {
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const textColor = useColorModeValue('gray.700', 'gray.200');
+  // DEĞİŞİKLİK: Yeni tasarım sistemine uygun renkler ve stiller.
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const secondaryTextColor = useColorModeValue('gray.600', 'gray.400');
+  const accentColor = useColorModeValue('blue.500', 'blue.300');
+
+  const handleAddToCart = (e) => {
+    e.preventDefault(); // Kartın linkine tıklamayı engelle.
+    // Sepete ekleme mantığı burada olacak.
+    console.log(`Sepete eklendi: ${product.name}`);
+  };
 
   return (
     <Box
-      bg={cardBg}
-      boxShadow="lg"
+      as={RouterLink} // Kartın tamamı tıklanabilir.
+      to={`/product/${product._id}`}
+      bg={bgColor}
+      border="1px solid"
+      borderColor={borderColor}
       borderRadius="xl"
       overflow="hidden"
-      transition="all 0.3s"
-      _hover={{ transform: 'translateY(-5px)', boxShadow: '2xl' }}
+      transition="all 0.2s ease-in-out"
+      _hover={{
+        transform: 'translateY(-4px)',
+        boxShadow: 'md',
+      }}
+      display="flex"
+      flexDirection="column"
     >
-      <Link to={`/product/${product._id}`}>
+      {/* DEĞİŞİKLİK: Resim oranını korumak için AspectRatio kullanıldı. */}
+      <AspectRatio w="full" ratio={4 / 3}>
         <Image
           src={product.image}
           alt={product.name}
           objectFit="cover"
-          w="full"
-          h="200px"
         />
-      </Link>
-      <Box p={6}>
-        <Stack spacing={2}>
-          <Text
-            color="teal.500"
-            fontWeight="semibold"
-            fontSize="sm"
-            textTransform="uppercase"
-          >
-            Yeni Ürün
+      </AspectRatio>
+
+      {/* DEĞİŞİKLİK: İçerik alanı yeniden düzenlendi ve VStack kullanıldı. */}
+      <VStack spacing={2} p={4} align="start" flex="1">
+        <Text
+          color={secondaryTextColor}
+          fontWeight="medium"
+          fontSize="xs"
+          textTransform="uppercase"
+        >
+          {product.category?.name || 'Kategori'}
+        </Text>
+        <Text
+          as="h3"
+          fontWeight="semibold"
+          fontSize="md"
+          noOfLines={2}
+          flex="1" // İsimlerin kart yüksekliğini eşitlemesine yardımcı olur.
+        >
+          {product.name}
+        </Text>
+        
+        {/* DEĞİŞİKLİK: Fiyat ve Sepete Ekle butonu HStack içinde. */}
+        <HStack justify="space-between" align="center" w="full" pt={2}>
+          <Text fontSize="lg" fontWeight="bold" color={accentColor}>
+            ₺{product.price}
           </Text>
-          <Text
-            as="h3"
-            fontWeight="bold"
-            fontSize="xl"
-            color={textColor}
-            isTruncated
-          >
-            {product.name}
-          </Text>
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="2xl" fontWeight="bold" color="teal.500">
-              ₺{product.price}
-            </Text>
-            <Badge colorScheme="green" variant="subtle">
-              Stokta
-            </Badge>
-          </Flex>
-        </Stack>
-        <Stack mt={6} direction="row" spacing={4} align="center">
-          <Button flex={1} colorScheme="teal" variant="solid">
-            Sepete Ekle
-          </Button>
-          <Button
-            as={Link}
-            to={`/product/${product._id}`}
-            flex={1}
-            colorScheme="teal"
-            variant="outline"
-          >
-            Detaylar
-          </Button>
-        </Stack>
-      </Box>
+          <Tooltip label="Sepete Ekle" hasArrow>
+            <IconButton
+              icon={<FiPlus />}
+              size="sm"
+              isRound
+              colorScheme="blue"
+              variant="ghost"
+              aria-label="Sepete Ekle"
+              onClick={handleAddToCart}
+            />
+          </Tooltip>
+        </HStack>
+      </VStack>
     </Box>
   );
 };

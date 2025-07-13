@@ -1,41 +1,41 @@
-// frontend/src/pages/ProductDetail.jsx
-
+// src/pages/ProductDetail.jsx
 import { useEffect } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
-  Box,
-  Container,
-  Stack,
-  Text,
-  Image,
-  Flex,
-  VStack,
-  Button,
-  Heading,
-  SimpleGrid,
-  StackDivider,
-  List,
-  ListItem,
-  Badge,
-  Alert,
-  AlertIcon,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
+  Box, Container, Stack, Text, Image, Flex, VStack, Button, Heading,
+  SimpleGrid, Alert, AlertIcon, Breadcrumb, BreadcrumbItem,
+  BreadcrumbLink, HStack, Tag, useToast
 } from '@chakra-ui/react';
-import { ChevronRightIcon } from '@chakra-ui/icons';
+import { FiChevronRight, FiEdit, FiTrash2, FiShoppingCart } from 'react-icons/fi';
 import { useProductContext } from '../context/ProductContext.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { currentProduct, loading, error, fetchProduct } = useProductContext();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { currentProduct, loading, error, fetchProduct, deleteProduct } = useProductContext();
 
   useEffect(() => {
     if (id) {
       fetchProduct(id);
     }
   }, [id, fetchProduct]);
+
+  const handleDelete = async () => {
+    if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+      const success = await deleteProduct(id);
+      if (success) {
+        toast({
+          title: 'Ürün Silindi',
+          status: 'info',
+          duration: 3000,
+          isClosable: true,
+        });
+        navigate('/');
+      }
+    }
+  };
 
   if (loading) {
     return <LoadingSpinner text="Ürün detayları yükleniyor..." />;
@@ -53,16 +53,12 @@ const ProductDetail = () => {
   }
 
   if (!currentProduct) {
-    return (
-      <Container maxW="container.lg" py={12}>
-        <Text>Ürün bulunamadı veya yükleniyor...</Text>
-      </Container>
-    );
+    return null; // Yükleme bitti ama ürün yoksa boş döneriz.
   }
 
   return (
-    <Container maxW="container.lg" py={12}>
-      <Breadcrumb spacing="8px" separator={<ChevronRightIcon color="gray.500" />}>
+    <Container maxW="container.xl" py={6}>
+      <Breadcrumb spacing="8px" separator={<FiChevronRight color="gray.500" />}>
         <BreadcrumbItem>
           <BreadcrumbLink as={RouterLink} to="/">Ana Sayfa</BreadcrumbLink>
         </BreadcrumbItem>
@@ -70,133 +66,79 @@ const ProductDetail = () => {
           <BreadcrumbLink as={RouterLink} to="/categories">Kategoriler</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink href="#">{currentProduct.name}</BreadcrumbLink>
+          <Text noOfLines={1}>{currentProduct.name}</Text>
         </BreadcrumbItem>
       </Breadcrumb>
       
       <SimpleGrid
-        columns={{ base: 1, lg: 2 }}
+        columns={{ base: 1, md: 2 }}
         spacing={{ base: 8, md: 10 }}
         py={{ base: 8, md: 12 }}
       >
         <Flex>
           <Image
             rounded="xl"
-            shadow="2xl"
             alt={currentProduct.name}
             src={currentProduct.image}
             fit="cover"
             align="center"
             w="100%"
-            h={{ base: '100%', sm: '400px', lg: '500px' }}
+            bg={{ base: 'gray.100', _dark: 'gray.700' }}
+            boxShadow="lg"
           />
         </Flex>
-        <Stack spacing={{ base: 6, md: 10 }}>
-          <Box as="header">
-            <Heading
-              lineHeight={1.1}
-              fontWeight={600}
-              fontSize={{ base: '2xl', sm: '4xl', lg: '5xl' }}
-              color={{ base: 'gray.900', _dark: { color: 'gray.50' } }}
-            >
-              {currentProduct.name}
-            </Heading>
-            <Text
-              color={{ base: 'teal.500', _dark: { color: 'teal.300' } }}
-              fontWeight={700}
-              fontSize="4xl"
-              mt={4}
-            >
-              ₺{currentProduct.price.toFixed(2)}
-            </Text>
-          </Box>
+        <VStack spacing={4} align="stretch">
+          <Heading as="h1" fontWeight={600} fontSize={{ base: '2xl', sm: '3xl', lg: '4xl' }}>
+            {currentProduct.name}
+          </Heading>
+          
+          <HStack>
+            <Tag size="lg" variant="subtle" colorScheme="blue">
+                {currentProduct.category.name}
+            </Tag>
+            {currentProduct.stock > 0 ? (
+                <Tag size="lg" variant="subtle" colorScheme="green">Stokta</Tag>
+            ) : (
+                <Tag size="lg" variant="subtle" colorScheme="red">Tükendi</Tag>
+            )}
+          </HStack>
 
-          <Stack
-            spacing={{ base: 4, sm: 6 }}
-            direction="column"
-            divider={<StackDivider borderColor={{ base: 'gray.200', _dark: { borderColor: 'gray.600' } }} />}
-          >
-            <VStack spacing={{ base: 4, sm: 6 }} align="start">
-              <Text
-                color={{ base: 'gray.600', _dark: { color: 'gray.400' } }}
-                fontSize="2xl"
-                fontWeight="300"
-              >
-                Ürün Açıklaması
-              </Text>
-              <Text fontSize="lg" color={{ base: 'gray.600', _dark: { color: 'gray.400' } }}>
+          <Text fontSize={{ base: '3xl', lg: '4xl' }} fontWeight="bold" color={{ base: 'blue.500', _dark: 'blue.300' }}>
+            ₺{currentProduct.price.toFixed(2)}
+          </Text>
+
+          <VStack align="start" spacing={3} pt={4}>
+             <Text fontSize="lg" fontWeight="semibold">Açıklama</Text>
+             <Text color={{ base: 'gray.600', _dark: { color: 'gray.400' } }} fontSize="md">
                 {currentProduct.description}
-              </Text>
-            </VStack>
-            <Box>
-              <Text
-                fontSize={{ base: '16px', lg: '18px' }}
-                color={{ base: 'teal.500', _dark: { color: 'teal.300' } }}
-                fontWeight="500"
-                textTransform="uppercase"
-                mb="4"
+             </Text>
+          </VStack>
+
+          <Stack pt={6} spacing={4}>
+            <Button
+              leftIcon={<FiShoppingCart />}
+              size="lg"
+              colorScheme="blue"
+              isDisabled={currentProduct.stock === 0}
+            >
+              Sepete Ekle
+            </Button>
+            <HStack>
+              <Button leftIcon={<FiEdit />} flex={1} variant="outline">
+                Düzenle
+              </Button>
+              <Button
+                leftIcon={<FiTrash2 />}
+                flex={1}
+                variant="ghost"
+                colorScheme="red"
+                onClick={handleDelete}
               >
-                Ürün Detayları
-              </Text>
-
-              <List spacing={3}>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">
-                    Kategori:
-                  </Text>{' '}
-                  <Badge colorScheme="purple" fontSize="md" px={2} py={1} borderRadius="md">
-                    {currentProduct.category.name}
-                  </Badge>
-                </ListItem>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">
-                    Stok Durumu:
-                  </Text>{' '}
-                  {currentProduct.stock > 0 ? (
-                    <Badge colorScheme="green" fontSize="md" px={2} py={1} borderRadius="md">
-                      {currentProduct.stock} Adet Stokta
-                    </Badge>
-                  ) : (
-                    <Badge colorScheme="red" fontSize="md" px={2} py={1} borderRadius="md">
-                      Stok Tükendi
-                    </Badge>
-                  )}
-                </ListItem>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">
-                    Değerlendirme:
-                  </Text>{' '}
-                  {currentProduct.rating} / 5 ({currentProduct.numReviews} inceleme)
-                </ListItem>
-              </List>
-            </Box>
+                Sil
+              </Button>
+            </HStack>
           </Stack>
-
-          <Button
-            rounded="lg"
-            size="lg"
-            py="7"
-            bg={{ base: 'gray.900', _dark: { bg: 'gray.50' } }}
-            color={{ base: 'white', _dark: { color: 'gray.900' } }}
-            textTransform="uppercase"
-            _hover={{
-              transform: 'translateY(2px)',
-              boxShadow: 'lg',
-            }}
-            isDisabled={currentProduct.stock === 0}
-          >
-            Sepete Ekle
-          </Button>
-
-          <Stack direction="row" alignItems="center" justifyContent="center">
-            <Button colorScheme="blue" variant="outline">
-              Ürünü Düzenle
-            </Button>
-            <Button colorScheme="red" variant="solid">
-              Ürünü Sil
-            </Button>
-          </Stack>
-        </Stack>
+        </VStack>
       </SimpleGrid>
     </Container>
   );

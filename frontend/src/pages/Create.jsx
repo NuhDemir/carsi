@@ -1,52 +1,27 @@
-// frontend/src/pages/Create.jsx
-
+// src/pages/Create.jsx
 import { useState, useEffect } from 'react';
 import {
-  Box,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  VStack,
-  Stack, // <<< EKSİK OLAN BUYDU, EKLENDİ
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Textarea,
-  Select,
-  FormHelperText,
-  Spinner,
-  Center,
-  Text,
+  Box, Heading, FormControl, FormLabel, Input, Button, VStack,
+  NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper,
+  NumberDecrementStepper, Textarea, Select, FormHelperText, Center,
+  Text, SimpleGrid
 } from '@chakra-ui/react';
+import { FiPlusCircle } from 'react-icons/fi';
 import { useProductContext } from '../context/ProductContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from '../components/LoadingSpinner.jsx';
 
 const Create = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    image: '',
-    description: '',
-    category: '',
-    stock: '',
+    name: '', price: '', image: '', description: '', category: '', stock: '',
   });
 
-  const {
-    createProduct,
-    fetchCategories,
-    categories,
-    loading,
-    error,
-  } = useProductContext();
+  const { createProduct, fetchCategories, categories, loading, error } = useProductContext();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (categories.length === 0) {
-        fetchCategories();
+      fetchCategories();
     }
   }, [fetchCategories, categories.length]);
 
@@ -61,64 +36,41 @@ const Create = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const productData = {
-        ...formData,
-        price: parseFloat(formData.price) || 0,
-        stock: parseInt(formData.stock, 10) || 0,
+      ...formData,
+      price: parseFloat(formData.price) || 0,
+      stock: parseInt(formData.stock, 10) || 0,
     };
-
     const newProduct = await createProduct(productData);
     if (newProduct) {
-      navigate('/');
+      navigate(`/product/${newProduct._id}`); // Kullanıcıyı yeni oluşturduğu ürünün sayfasına yönlendirelim.
     }
   };
 
   return (
     <Box
-      maxW="2xl"
+      maxW="3xl" // Formu biraz daha genişlettik
       mx="auto"
-      mt={10}
-      p={8}
-      // useColorModeValue yerine doğrudan stil objesi kullanıyoruz.
-      // Chakra UI, _light ve _dark pseudo prop'larını destekler.
-      bg={{ base: 'white', _dark: { bg: 'gray.700' } }}
+      p={{ base: 6, md: 8 }}
+      bg={{ base: 'white', _dark: 'gray.800' }}
       borderRadius="xl"
-      boxShadow="lg"
+      border="1px solid"
+      borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
     >
-      <VStack spacing={6} as="form" onSubmit={handleSubmit}>
-        <Heading as="h1" size="xl">
+      <VStack as="form" onSubmit={handleSubmit} spacing={6}>
+        <Heading as="h1" size="lg" fontWeight="semibold">
           Yeni Ürün Ekle
         </Heading>
         
         <FormControl isRequired>
           <FormLabel>Ürün Adı</FormLabel>
-          <Input
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Örn: Kablosuz Kulaklık"
-          />
+          <Input name="name" value={formData.name} onChange={handleChange} placeholder="Örn: Akıllı Saat" variant="filled" size="lg"/>
         </FormControl>
 
-        <FormControl isRequired>
-          <FormLabel>Açıklama</FormLabel>
-          <Textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Ürünün özelliklerini ve detaylarını yazın"
-          />
-        </FormControl>
-
-        <Stack direction={{ base: 'column', md: 'row' }} w="full" spacing={4}>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} w="full">
           <FormControl isRequired>
             <FormLabel>Fiyat (₺)</FormLabel>
-            <NumberInput 
-              min={0}
-              value={formData.price}
-              onChange={(val) => handleNumberChange(val, 'price')}
-            >
+            <NumberInput min={0} value={formData.price} onChange={(val) => handleNumberChange(val, 'price')} variant="filled" size="lg">
               <NumberInputField placeholder="Örn: 1500" name="price" />
               <NumberInputStepper>
                 <NumberIncrementStepper />
@@ -126,14 +78,9 @@ const Create = () => {
               </NumberInputStepper>
             </NumberInput>
           </FormControl>
-
           <FormControl isRequired>
             <FormLabel>Stok Adedi</FormLabel>
-            <NumberInput 
-              min={0}
-              value={formData.stock}
-              onChange={(val) => handleNumberChange(val, 'stock')}
-            >
+            <NumberInput min={0} value={formData.stock} onChange={(val) => handleNumberChange(val, 'stock')} variant="filled" size="lg">
               <NumberInputField placeholder="Örn: 50" name="stock" />
               <NumberInputStepper>
                 <NumberIncrementStepper />
@@ -141,59 +88,50 @@ const Create = () => {
               </NumberInputStepper>
             </NumberInput>
           </FormControl>
-        </Stack>
-
+        </SimpleGrid>
+        
         <FormControl isRequired>
           <FormLabel>Kategori</FormLabel>
           {loading && categories.length === 0 ? (
             <Center p={4} borderWidth="1px" borderRadius="md" bg={{ base: 'gray.50', _dark: { bg: 'gray.800' } }}>
-                <Spinner size="sm" mr={3} />
-                <Text>Kategoriler yükleniyor...</Text>
+                <LoadingSpinner text="Kategoriler yükleniyor..."/>
             </Center>
           ) : (
-            <Select
-              name="category"
-              placeholder="Bir kategori seçin"
-              value={formData.category}
-              onChange={handleChange}
-            >
+            <Select name="category" placeholder="Bir kategori seçin" value={formData.category} onChange={handleChange} variant="filled" size="lg">
               {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
+                <option key={cat._id} value={cat._id}>{cat.name}</option>
               ))}
             </Select>
           )}
-          <FormHelperText>
-            Eğer kategori listesi boşsa, önce backend'den bir kategori ekleyin.
-          </FormHelperText>
+        </FormControl>
+
+        <FormControl isRequired>
+          <FormLabel>Açıklama</FormLabel>
+          <Textarea name="description" value={formData.description} onChange={handleChange} placeholder="Ürünün özelliklerini ve detaylarını yazın" variant="filled" size="lg" rows={5}/>
         </FormControl>
 
         <FormControl isRequired>
           <FormLabel>Görsel URL</FormLabel>
-          <Input
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            placeholder="https://ornek.com/gorsel.jpg"
-          />
+          <Input name="image" value={formData.image} onChange={handleChange} placeholder="https://ornek.com/gorsel.jpg" variant="filled" size="lg"/>
+          <FormHelperText>Lütfen geçerli ve erişilebilir bir görsel linki girin.</FormHelperText>
         </FormControl>
-
-        <Button
-          type="submit"
-          colorScheme="teal"
-          size="lg"
-          width="full"
-          isLoading={loading}
-          loadingText="Ekleniyor..."
-          isDisabled={loading || categories.length === 0}
-        >
-          Ürünü Ekle
-        </Button>
 
         {error && (
             <Text color="red.500" textAlign="center">{error}</Text>
         )}
+        
+        <Button
+          type="submit"
+          colorScheme="blue"
+          size="lg"
+          width="full"
+          leftIcon={<FiPlusCircle />}
+          isLoading={loading}
+          loadingText="Ekleniyor..."
+          isDisabled={loading || categories.length === 0}
+        >
+          Ürünü Oluştur
+        </Button>
       </VStack>
     </Box>
   );

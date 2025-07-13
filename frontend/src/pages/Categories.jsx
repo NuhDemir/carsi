@@ -1,59 +1,41 @@
-// frontend/src/pages/Categories.jsx
+// src/pages/Categories.jsx
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Box,
-  Heading,
-  SimpleGrid,
-  Text,
-  InputGroup,
-  InputLeftElement,
-  Input,
-  VStack,
-  Icon,
-  Badge,
-  Divider,
+  Box, Heading, SimpleGrid, Text, InputGroup, InputLeftElement,
+  Input, VStack, Icon
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaTags, FaSearch } from 'react-icons/fa';
+import { FiSearch, FiTag } from 'react-icons/fi';
 import { useProductContext } from '../context/ProductContext.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 
-// Her bir kategori kartını temsil eden bileşen
+// Kategori Kartı Bileşeni (Sayfa içinde veya ayrı bir component olarak tanımlanabilir)
 const CategoryCard = ({ category }) => {
   return (
     <Box
       as={RouterLink}
       to={`/category/${category._id}`}
       p={6}
-      bg={{ base: 'white', _dark: { bg: 'gray.800' } }}
+      bg={{ base: 'white', _dark: 'gray.800' }}
       borderRadius="xl"
-      boxShadow="lg"
-      transition="all 0.3s"
-      position="relative" // Badge konumlandırması için
+      border="1px solid"
+      borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+      transition="all 0.2s ease-in-out"
       _hover={{
-        transform: 'translateY(-5px)',
-        boxShadow: '2xl',
-        bg: { base: 'gray.50', _dark: { bg: 'gray.700' } },
+        transform: 'translateY(-4px)',
+        boxShadow: 'md',
+        borderColor: { base: 'blue.300', _dark: 'blue.500' },
       }}
     >
-      <VStack spacing={4} align="center">
-        <Icon as={FaTags} w={12} h={12} color="teal.400" />
+      <VStack spacing={4}>
+        <Icon as={FiTag} w={10} h={10} color={{ base: 'blue.500', _dark: 'blue.300' }} />
         <Heading as="h3" size="md" textAlign="center" noOfLines={2}>
           {category.name}
         </Heading>
+        <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
+          {category.productCount} ürün
+        </Text>
       </VStack>
-      <Badge
-        colorScheme="teal"
-        variant="solid"
-        position="absolute"
-        top="1rem"
-        right="1rem"
-        borderRadius="full"
-        px={3}
-        py={1}
-      >
-        {category.productCount} Ürün
-      </Badge>
     </Box>
   );
 };
@@ -63,8 +45,11 @@ const Categories = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    // Sadece kategoriler boşsa yükle
+    if (categories.length === 0) {
+      fetchCategories();
+    }
+  }, [fetchCategories, categories.length]);
 
   const filteredCategories = useMemo(() => {
     if (!searchTerm) {
@@ -75,11 +60,6 @@ const Categories = () => {
     );
   }, [categories, searchTerm]);
 
-  const popularCategories = useMemo(() => {
-    // Backend zaten sıralı gönderiyor, ilk 4'ünü alalım.
-    return categories.slice(0, 4);
-  }, [categories]);
-
   if (loading && categories.length === 0) {
     return <LoadingSpinner text="Kategoriler yükleniyor..." />;
   }
@@ -87,43 +67,26 @@ const Categories = () => {
   return (
     <Box>
       <VStack spacing={4} mb={10} align="center">
-        <Heading as="h1" size="2xl">
-          Tüm Kategoriler
+        <Heading as="h1" size="xl" fontWeight="semibold">
+          Kategoriler
         </Heading>
-        <Text fontSize="lg" color={{ base: 'gray.600', _dark: { color: 'gray.400' } }}>
-          Aradığınızı bulmak için kategorilere göz atın veya arama yapın.
+        <Text fontSize="lg" color={{ base: 'gray.600', _dark: 'gray.400' } } textAlign="center">
+          İlginizi çeken kategoriyi bulun veya arama yapın.
         </Text>
-        <InputGroup maxW="lg">
+        <InputGroup maxW="lg" size="lg">
           <InputLeftElement pointerEvents="none">
-            <Icon as={FaSearch} color="gray.300" />
+            <FiSearch color="gray.300" />
           </InputLeftElement>
           <Input
             placeholder="Kategori ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             borderRadius="full"
-            boxShadow="md"
+            variant="filled"
           />
         </InputGroup>
       </VStack>
 
-      {/* Popüler Kategoriler Bölümü */}
-      {popularCategories.length > 0 && !searchTerm && (
-        <Box mb={12}>
-            <Heading size="lg" mb={6}>Popüler Kategoriler</Heading>
-            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={6}>
-                {popularCategories.map((category) => (
-                    <CategoryCard key={`pop-${category._id}`} category={category} />
-                ))}
-            </SimpleGrid>
-            <Divider my={10} />
-        </Box>
-      )}
-
-      {/* Tüm Kategoriler (Filtrelenmiş) */}
-      <Heading size="lg" mb={6}>
-        {searchTerm ? 'Arama Sonuçları' : 'Tüm Kategoriler'}
-      </Heading>
       {filteredCategories.length > 0 ? (
         <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={8}>
           {filteredCategories.map((category) => (
@@ -131,7 +94,7 @@ const Categories = () => {
           ))}
         </SimpleGrid>
       ) : (
-        <Text>
+        <Text textAlign="center" py={20} color={{ base: 'gray.600', _dark: { color: 'gray.400' } }}>
           {searchTerm
             ? 'Aramanızla eşleşen kategori bulunamadı.'
             : 'Gösterilecek kategori yok.'}
