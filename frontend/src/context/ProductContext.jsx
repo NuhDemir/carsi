@@ -2,10 +2,8 @@
 import { createContext, useContext, useReducer, useCallback } from 'react';
 import { useToast } from '@chakra-ui/react';
 
-// API Base URL (Vite'a uygun şekilde)
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// Initial state (currentProduct için null yerine {} daha güvenli olabilir)
 const initialState = {
   products: [],
   loading: false,
@@ -15,7 +13,6 @@ const initialState = {
   currentProduct: null,
 };
 
-// Action types
 const actionTypes = {
   SET_LOADING: 'SET_LOADING',
   SET_ERROR: 'SET_ERROR',
@@ -29,30 +26,23 @@ const actionTypes = {
   CLEAR_ERROR: 'CLEAR_ERROR',
 };
 
-// Reducer
 const productReducer = (state, action) => {
   switch (action.type) {
     case actionTypes.SET_LOADING:
       return { ...state, loading: action.payload };
-    
     case actionTypes.SET_ERROR:
       return { ...state, error: action.payload, loading: false };
-    
     case actionTypes.CLEAR_ERROR:
       return { ...state, error: null };
-    
     case actionTypes.SET_PRODUCTS:
       return { ...state, products: action.payload, loading: false, error: null };
-    
     case actionTypes.ADD_PRODUCT:
-      // Yeni eklenen ürünü listenin başına ekleyelim ki hemen görünsün
       return {
         ...state,
         products: [action.payload, ...state.products],
         loading: false,
         error: null,
       };
-    
     case actionTypes.UPDATE_PRODUCT:
       return {
         ...state,
@@ -63,7 +53,6 @@ const productReducer = (state, action) => {
         loading: false,
         error: null,
       };
-    
     case actionTypes.DELETE_PRODUCT:
       return {
         ...state,
@@ -71,26 +60,19 @@ const productReducer = (state, action) => {
         loading: false,
         error: null,
       };
-    
     case actionTypes.SET_SEARCH_RESULTS:
       return { ...state, searchResults: action.payload, loading: false };
-    
     case actionTypes.SET_CATEGORIES:
       return { ...state, categories: action.payload, loading: false };
-    
     case actionTypes.SET_CURRENT_PRODUCT:
-        // Yükleme bitince currentProduct'ı set et
       return { ...state, currentProduct: action.payload, loading: false, error: null };
-    
     default:
       return state;
   }
 };
 
-// Create context
 const ProductContext = createContext();
 
-// Custom hook
 export const useProductContext = () => {
   const context = useContext(ProductContext);
   if (!context) {
@@ -99,7 +81,6 @@ export const useProductContext = () => {
   return context;
 };
 
-// API helper function
 const apiRequest = async (url, options = {}) => {
   const config = {
     headers: {
@@ -108,35 +89,33 @@ const apiRequest = async (url, options = {}) => {
     },
     ...options,
   };
-  
-  const response = await fetch(`${API_BASE_URL}${url}`, config);
-  
+
+  const fullUrl = `${API_BASE_URL}${url}`;
+  const response = await fetch(fullUrl, config);
+
   if (!response.ok) {
-    // API'dan gelen hata mesajını yakalamak için response.json() kullanılır
-    const errorData = await response.json();
-    throw new Error(errorData.message || `API isteği başarısız oldu. Durum: ${response.status}`);
+    const errorData = await response.json().catch(() => ({ 
+        message: `API request failed with status: ${response.status}` 
+    }));
+    throw new Error(errorData.message);
   }
 
-  // DELETE gibi bazı istekler boş cevap dönebilir.
   if (response.status === 204 || response.headers.get('content-length') === '0') {
-    return null; 
+    return null;
   }
 
-  const data = await response.json();
-  return data;
+  return response.json();
 };
 
-// Provider component
 export const ProductProvider = ({ children }) => {
   const [state, dispatch] = useReducer(productReducer, initialState);
   const toast = useToast();
 
   const handleError = useCallback((error, customMessage) => {
-    const errorMessage = customMessage || error.message || 'Bir hata oluştu';
+    const errorMessage = customMessage || error.message || 'An unexpected error occurred';
     dispatch({ type: actionTypes.SET_ERROR, payload: errorMessage });
-    
     toast({
-      title: 'Hata',
+      title: 'Error',
       description: errorMessage,
       status: 'error',
       duration: 5000,
@@ -146,7 +125,7 @@ export const ProductProvider = ({ children }) => {
 
   const handleSuccess = useCallback((message) => {
     toast({
-      title: 'Başarılı',
+      title: 'Success',
       description: message,
       status: 'success',
       duration: 3000,
@@ -159,137 +138,135 @@ export const ProductProvider = ({ children }) => {
   }, []);
 
   const fetchProducts = useCallback(async () => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest('/products');
       dispatch({ type: actionTypes.SET_PRODUCTS, payload: data });
     } catch (error) {
-      handleError(error, 'Ürünler yüklenirken bir hata oluştu.');
+      handleError(error, 'Failed to load products.');
     }
   }, [handleError]);
 
   const fetchProduct = useCallback(async (id) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest(`/products/${id}`);
       dispatch({ type: actionTypes.SET_CURRENT_PRODUCT, payload: data });
       return data;
     } catch (error) {
-      handleError(error, 'Ürün detayı yüklenirken bir hata oluştu.');
+      handleError(error, 'Failed to load product details.');
       return null;
     }
   }, [handleError]);
 
   const createProduct = useCallback(async (productData) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
-      // productData artık name, price, image, description, category, stock içermeli
       const data = await apiRequest('/products', {
         method: 'POST',
         body: JSON.stringify(productData),
       });
       dispatch({ type: actionTypes.ADD_PRODUCT, payload: data });
-      handleSuccess('Ürün başarıyla oluşturuldu.');
+      handleSuccess('Product created successfully.');
       return data;
     } catch (error) {
-      handleError(error, 'Ürün oluşturulurken bir hata oluştu.');
+      handleError(error, 'Failed to create product.');
       return null;
     }
   }, [handleError, handleSuccess]);
 
   const updateProduct = useCallback(async (id, productData) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest(`/products/${id}`, {
         method: 'PUT',
         body: JSON.stringify(productData),
       });
       dispatch({ type: actionTypes.UPDATE_PRODUCT, payload: data });
-      handleSuccess('Ürün başarıyla güncellendi.');
+      handleSuccess('Product updated successfully.');
       return data;
     } catch (error) {
-      handleError(error, 'Ürün güncellenirken bir hata oluştu.');
+      handleError(error, 'Failed to update product.');
       return null;
     }
   }, [handleError, handleSuccess]);
 
   const deleteProduct = useCallback(async (id) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
-      // Backend artık { id: '...' } gibi bir obje dönüyor
       const responseData = await apiRequest(`/products/${id}`, {
         method: 'DELETE',
       });
       dispatch({ type: actionTypes.DELETE_PRODUCT, payload: responseData.id });
-      handleSuccess('Ürün başarıyla silindi.');
+      handleSuccess('Product deleted successfully.');
       return true;
     } catch (error) {
-      handleError(error, 'Ürün silinirken bir hata oluştu.');
+      handleError(error, 'Failed to delete product.');
       return false;
     }
   }, [handleError, handleSuccess]);
 
   const searchProducts = useCallback(async (query) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest(`/products/search?q=${encodeURIComponent(query)}`);
       dispatch({ type: actionTypes.SET_SEARCH_RESULTS, payload: data });
       return data;
     } catch (error) {
-      handleError(error, 'Arama sırasında bir hata oluştu.');
-      dispatch({ type: actionTypes.SET_SEARCH_RESULTS, payload: [] }); // Hata durumunda sonuçları temizle
+      handleError(error, 'An error occurred during search.');
+      dispatch({ type: actionTypes.SET_SEARCH_RESULTS, payload: [] });
       return [];
     }
   }, [handleError]);
 
   const fetchCategories = useCallback(async () => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest('/categories');
       dispatch({ type: actionTypes.SET_CATEGORIES, payload: data });
       return data;
     } catch (error) {
-      handleError(error, 'Kategoriler yüklenirken bir hata oluştu.');
+      handleError(error, 'Failed to load categories.');
       return [];
     }
   }, [handleError]);
 
   const filterByCategory = useCallback(async (categoryId) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest(`/products/category/${categoryId}`);
       dispatch({ type: actionTypes.SET_PRODUCTS, payload: data });
       return data;
     } catch (error) {
-      handleError(error, 'Kategoriye göre filtreleme sırasında bir hata oluştu.');
+      handleError(error, 'Failed to filter by category.');
       return [];
     }
   }, [handleError]);
-
+  
   const getProductsByPriceRange = useCallback(async (minPrice, maxPrice) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest(`/products/price-range?min=${minPrice}&max=${maxPrice}`);
       dispatch({ type: actionTypes.SET_PRODUCTS, payload: data });
       return data;
     } catch (error) {
-      handleError(error, 'Fiyat aralığına göre filtreleme sırasında bir hata oluştu.');
+      handleError(error, 'Failed to filter by price range.');
       return [];
     }
   }, [handleError]);
 
   const updateProductStock = useCallback(async (id, newStock) => {
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
       const data = await apiRequest(`/products/${id}/stock`, {
         method: 'PATCH',
         body: JSON.stringify({ stock: newStock }),
       });
       dispatch({ type: actionTypes.UPDATE_PRODUCT, payload: data });
-      handleSuccess('Stok başarıyla güncellendi.');
+      handleSuccess('Stock updated successfully.');
       return data;
     } catch (error) {
-      handleError(error, 'Stok güncellenirken bir hata oluştu.');
+      handleError(error, 'Failed to update stock.');
       return null;
     }
   }, [handleError, handleSuccess]);
