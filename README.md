@@ -5,12 +5,10 @@
 ![React](https://img.shields.io/badge/react-18.x-blue.svg)
 ![Vite](https://img.shields.io/badge/vite-4.x-purple.svg)
 
-
-> English version below ⬇️
 ![Uygulama Görseli](https://raw.githubusercontent.com/NuhDemir/carsi/refs/heads/main/carsi.png?token=GHSAT0AAAAAADCOFTETIPHEFRI6H7UM6IES2DU5VSQ)
 
 
-
+> English version below ⬇️
 ---
 Demo Website : https://carsi.onrender.com/
 ## 🇹🇷 Proje Hakkında
