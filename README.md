@@ -7,25 +7,26 @@
 
 > English version below ⬇️
 
+---
+
 ## 🇹🇷 Proje Hakkında
 
-**Çarşı**, geleneksel Türk pazarlarının canlı ve toplulukçu ruhundan ilham alan modern bir e-ticaret platformudur. MERN (MongoDB, Express, React, Node.js) mimarisiyle geliştirilen bu uygulama, hızlı, kullanıcı dostu ve tamamen responsif bir deneyim sunar.
+**Çarşı**, geleneksel Türk pazarlarının toplulukçu ruhundan esinlenen, modern ve hızlı bir e-ticaret platformudur. MERN (MongoDB, Express, React, Node.js) mimarisi ile geliştirilmiş, kullanıcı dostu ve duyarlı bir yapıya sahiptir.
 
-### 🔑 Özellikler
+### 🚀 Özellikler
 
-- ⚡ **Hızlı Frontend:** React + Vite + React Router
-- 💅 **Responsive UI:** Chakra UI ile modern tasarım
-- 📦 **State Yönetimi:** Context API + useReducer
-- 🛒 **Tam CRUD İşlevselliği:** Ürün yönetimi
-- 🗂️ **Dinamik Kategoriler:** Backend’den çekilir
-- 🔍 **Gelişmiş Arama & Filtreleme**
-- 🌙 **Tema Desteği:** Light/Dark mode
-- 🚀 **Üretime Hazır Backend:** Statik dosya servis desteği
+- ⚡ Hızlı SPA deneyimi (Vite + React + Router)
+- 💅 Responsive ve erişilebilir arayüz (Chakra UI)
+- 🛒 Ürünler için tam CRUD desteği
+- 🗂️ Dinamik kategoriler
+- 🔍 Gerçek zamanlı arama & filtreleme
+- 🌙 Işık & karanlık mod
+- 📦 State yönetimi (Context API + Reducer)
+- 🧱 Üretime hazır backend (statik frontend servisi)
 
-### 🛠️ Kullanılan Teknolojiler
+### 🧰 Kullanılan Teknolojiler
 
 **Frontend:**
-
 - React
 - Vite
 - Chakra UI
@@ -33,179 +34,173 @@
 - Framer Motion
 
 **Backend:**
-
 - Node.js
 - Express.js
-- MongoDB & Mongoose
+- MongoDB + Mongoose
 - CORS
 - dotenv
 
 ---
 
-## ⚙️ Kurulum ve Başlatma
+## ⚙️ Kurulum
 
-### 🔧 Gereksinimler
-
-- Node.js (v18+)
+### Gereksinimler
+- Node.js (18+)
 - npm
-- MongoDB (lokal veya MongoDB Atlas)
+- MongoDB (lokal ya da Atlas)
 
-### 🚀 Kurulum
+### Kurulum Adımları
 
 ```bash
 git clone https://github.com/kullanici-adiniz/carsi.git
 cd carsi
-.env dosyasını oluşturun ve aşağıdaki değişkenleri ekleyin:
+```
 
-env
-Kopyala
-Düzenle
+`.env` dosyası oluşturun ve şunları ekleyin:
+
+```env
 NODE_ENV=development
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
-Backend Bağımlılıkları:
-bash
-Kopyala
-Düzenle
+```
+
+#### Bağımlılıkları Yükleme
+
+```bash
 npm install
-Frontend Bağımlılıkları:
-bash
-Kopyala
-Düzenle
 npm install --prefix frontend
-🔄 Geliştirme Modu
-İki terminal açarak aşağıdaki komutları çalıştırabilirsiniz:
+```
 
-1. Backend:
+---
 
-bash
-Kopyala
-Düzenle
+### Geliştirme Modu
+
+İki terminalde:
+
+**Backend:**
+```bash
 npm run dev
 # http://localhost:5000
-2. Frontend:
+```
 
-bash
-Kopyala
-Düzenle
+**Frontend:**
+```bash
 npm run dev --prefix frontend
 # http://localhost:5173
-🏁 Üretim Modu
-Frontend Build:
+```
 
-bash
-Kopyala
-Düzenle
+---
+
+### Üretim Modu
+
+**Build:**
+```bash
 npm run build
-Sunucuyu Başlatma:
+```
 
-bash
-Kopyala
-Düzenle
+**Sunucu Başlatma:**
+```bash
 npm start
-# http://localhost:5000 üzerinden frontend ve backend servis edilir.
-🇬🇧 About The Project
-Çarşı is a modern, full-stack MERN e-commerce platform inspired by the vibrant spirit of traditional Turkish bazaars. It delivers a fast and seamless shopping experience using today’s top web technologies.
+# http://localhost:5000 üzerinden erişim
+```
 
-🔑 Features
-⚡ Fast Frontend: Vite + React + React Router
+---
 
-💅 Responsive UI: Styled with Chakra UI
+## 🇬🇧 About The Project
 
-📦 State Management: Context API + useReducer
+**Çarşı** is a modern e-commerce platform inspired by traditional Turkish bazaars. It’s a full-stack MERN application built for speed, responsiveness, and ease of use.
 
-🛒 Full CRUD Support: Product operations
+### 🚀 Features
 
-🗂️ Dynamic Categories: Fetched from backend
+- ⚡ Fast SPA (Vite + React + Router)
+- 💅 Responsive UI (Chakra UI)
+- 🛒 Full CRUD for products
+- 🗂️ Dynamic categories
+- 🔍 Real-time search & filtering
+- 🌙 Light & dark theme toggle
+- 📦 State management with Context API + Reducer
+- 🧱 Production-ready backend (serves frontend)
 
-🔍 Search & Filtering: Real-time interaction
+### 🧰 Tech Stack
 
-🌙 Light/Dark Mode
+**Frontend:**
+- React
+- Vite
+- Chakra UI
+- React Router
+- Framer Motion
 
-🚀 Production-Ready: Backend serves frontend static files
+**Backend:**
+- Node.js
+- Express.js
+- MongoDB + Mongoose
+- CORS
+- dotenv
 
-🛠️ Built With
-Frontend:
+---
 
-React
+## ⚙️ Getting Started
 
-Vite
+### Prerequisites
+- Node.js (18+)
+- npm
+- MongoDB (local or Atlas)
 
-Chakra UI
+### Installation
 
-React Router
-
-Framer Motion
-
-Backend:
-
-Node.js
-
-Express.js
-
-MongoDB & Mongoose
-
-CORS
-
-dotenv
-
-⚙️ Installation
-Requirements
-Node.js (v18+)
-
-npm
-
-MongoDB (local or Atlas)
-
-Clone & Setup
-bash
-Kopyala
-Düzenle
+```bash
 git clone https://github.com/your-username/carsi.git
 cd carsi
-Create a .env file:
+```
 
-env
-Kopyala
-Düzenle
+Create a `.env` file:
+
+```env
 NODE_ENV=development
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
+```
+
 Install dependencies:
 
-bash
-Kopyala
-Düzenle
+```bash
 npm install
 npm install --prefix frontend
-Development
-Backend:
+```
 
-bash
-Kopyala
-Düzenle
+---
+
+### Development Mode
+
+**Backend:**
+```bash
 npm run dev
 # Runs on http://localhost:5000
-Frontend:
+```
 
-bash
-Kopyala
-Düzenle
+**Frontend:**
+```bash
 npm run dev --prefix frontend
 # Runs on http://localhost:5173
-Production
-Build frontend:
+```
 
-bash
-Kopyala
-Düzenle
+---
+
+### Production Mode
+
+**Build frontend:**
+```bash
 npm run build
-Start production server:
+```
 
-bash
-Kopyala
-Düzenle
+**Start server:**
+```bash
 npm start
-# Accessible on http://localhost:5000
-📄 License
-Distributed under the MIT License.
+# Access on http://localhost:5000
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
