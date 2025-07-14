@@ -1,198 +1,139 @@
-Çarşı - Modern E-Commerce Platform
+# Çarşı - Modern E-Commerce Platform
 
-![alt text](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-20.x-green.svg)
+![React](https://img.shields.io/badge/react-18.x-blue.svg)
+![Vite](https://img.shields.io/badge/vite-4.x-purple.svg)
 
+> English version below ⬇️
 
-![alt text](https://img.shields.io/badge/node-20.x-green.svg)
+## 🇹🇷 Proje Hakkında
 
+**Çarşı**, geleneksel Türk pazarlarının canlı ve toplulukçu ruhundan ilham alan modern bir e-ticaret platformudur. MERN (MongoDB, Express, React, Node.js) mimarisiyle geliştirilen bu uygulama, hızlı, kullanıcı dostu ve tamamen responsif bir deneyim sunar.
 
-![alt text](https://img.shields.io/badge/react-18.x-blue.svg)
+### 🔑 Özellikler
 
+- ⚡ **Hızlı Frontend:** React + Vite + React Router
+- 💅 **Responsive UI:** Chakra UI ile modern tasarım
+- 📦 **State Yönetimi:** Context API + useReducer
+- 🛒 **Tam CRUD İşlevselliği:** Ürün yönetimi
+- 🗂️ **Dinamik Kategoriler:** Backend’den çekilir
+- 🔍 **Gelişmiş Arama & Filtreleme**
+- 🌙 **Tema Desteği:** Light/Dark mode
+- 🚀 **Üretime Hazır Backend:** Statik dosya servis desteği
 
-![alt text](https://img.shields.io/badge/vite-4.x-purple.svg)
+### 🛠️ Kullanılan Teknolojiler
 
-English | Türkçe
+**Frontend:**
 
-🇬🇧 English
-About The Project
+- React
+- Vite
+- Chakra UI
+- React Router
+- Framer Motion
 
-Çarşı (Turkish for "Bazaar") is a full-stack MERN (MongoDB, Express, React, Node.js) e-commerce application. It's designed to be a modern, fast, and user-friendly platform for listing and exploring products, inspired by the vibrant and communal spirit of traditional Turkish bazaars.
+**Backend:**
 
-The frontend is built with React and Vite for a blazing-fast development experience, and styled with Chakra UI for a clean, accessible, and responsive design. The backend is powered by Node.js and Express, with a MongoDB database for data persistence.
+- Node.js
+- Express.js
+- MongoDB & Mongoose
+- CORS
+- dotenv
 
-Features
+---
 
-⚡️ Fast & Modern Frontend: Built with Vite, React, and React Router for a smooth single-page application (SPA) experience.
+## ⚙️ Kurulum ve Başlatma
 
-💅 Beautiful & Responsive UI: Styled with Chakra UI, providing a consistent and accessible design that works on all devices.
+### 🔧 Gereksinimler
 
-📦 State Management: Centralized application state management using React's Context API and Reducer hooks.
+- Node.js (v18+)
+- npm
+- MongoDB (lokal veya MongoDB Atlas)
 
-🛒 Full CRUD Functionality: Create, Read, Update, and Delete operations for products.
+### 🚀 Kurulum
 
-🗂️ Dynamic Categories: Products are organized by categories, which are dynamically fetched from the backend.
-
-🔍 Advanced Search & Filtering: Real-time product search and filtering by category.
-
-🌙 Light & Dark Mode: Built-in theme switching for a better user experience.
-
-🚀 Production-Ready Backend: The Express server is configured to serve the static frontend files in production, making deployment straightforward.
-
-Built With
-
-Frontend:
-
-React
-
-Vite
-
-React Router
-
-Chakra UI
-
-Framer Motion
-
-Backend:
-
-Node.js
-
-Express.js
-
-MongoDB
-
-Mongoose
-
-CORS
-
-dotenv
-
-Getting Started
-
-To get a local copy up and running, follow these simple steps.
-
-Prerequisites
-
-Node.js (v18 or higher recommended)
-
-npm
-
-MongoDB (You can use a local instance or a free cloud database from MongoDB Atlas)
-
-Installation & Setup
-
-Clone the repository:
-
-
-git clone https://github.com/your-username/carsi.git
+```bash
+git clone https://github.com/kullanici-adiniz/carsi.git
 cd carsi
+.env dosyasını oluşturun ve aşağıdaki değişkenleri ekleyin:
 
-
-Create a .env file in the root directory of the project and add your environment variables:
-
-Generated env
+env
+Kopyala
+Düzenle
 NODE_ENV=development
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
-Env
-
-
-Install backend dependencies:
-
-
+Backend Bağımlılıkları:
+bash
+Kopyala
+Düzenle
 npm install
-
-
-Install frontend dependencies:
-
-
+Frontend Bağımlılıkları:
+bash
+Kopyala
+Düzenle
 npm install --prefix frontend
+🔄 Geliştirme Modu
+İki terminal açarak aşağıdaki komutları çalıştırabilirsiniz:
 
+1. Backend:
 
-This command tells npm to run install inside the frontend directory.
-
-Usage
-Development Mode
-
-To run both the frontend and backend servers concurrently in development mode:
-
-Start the backend server (from the root directory):
-
-This will run on http://localhost:5000.
-
-
+bash
+Kopyala
+Düzenle
 npm run dev
+# http://localhost:5000
+2. Frontend:
 
-
-Start the frontend development server (in a new terminal, from the root directory):
-
-This will run on http://localhost:5173.
-
-
+bash
+Kopyala
+Düzenle
 npm run dev --prefix frontend
+# http://localhost:5173
+🏁 Üretim Modu
+Frontend Build:
 
-
-Now you can access the application at http://localhost:5173.
-
-Production Mode
-
-To build the frontend application and serve it from the backend server:
-
-Build the React application:
-
-This command will install all dependencies and create an optimized production build in the frontend/dist folder.
-
-
+bash
+Kopyala
+Düzenle
 npm run build
+Sunucuyu Başlatma:
 
-
-Start the production server:
-
-This will start the backend server, which will also serve the frontend files.
-
-
+bash
+Kopyala
+Düzenle
 npm start
+# http://localhost:5000 üzerinden frontend ve backend servis edilir.
+🇬🇧 About The Project
+Çarşı is a modern, full-stack MERN e-commerce platform inspired by the vibrant spirit of traditional Turkish bazaars. It delivers a fast and seamless shopping experience using today’s top web technologies.
 
+🔑 Features
+⚡ Fast Frontend: Vite + React + React Router
 
-Now you can access the production-ready application at http://localhost:5000.
+💅 Responsive UI: Styled with Chakra UI
 
-<br>
+📦 State Management: Context API + useReducer
 
-🇹🇷 Türkçe
-Proje Hakkında
+🛒 Full CRUD Support: Product operations
 
-Çarşı, adını geleneksel Türk pazarlarının canlı ve toplulukçu ruhundan alan, modern bir e-ticaret platformudur. Full-stack MERN (MongoDB, Express, React, Node.js) mimarisiyle geliştirilmiştir.
+🗂️ Dynamic Categories: Fetched from backend
 
-Frontend, son derece hızlı bir geliştirme deneyimi için React ve Vite ile oluşturulmuş, temiz, erişilebilir ve duyarlı bir tasarım için Chakra UI ile stillendirilmiştir. Backend ise Node.js ve Express tarafından desteklenmekte, veri kalıcılığı için MongoDB veritabanı kullanılmaktadır.
+🔍 Search & Filtering: Real-time interaction
 
-Özellikler
+🌙 Light/Dark Mode
 
-⚡️ Hızlı ve Modern Frontend: Akıcı bir tek sayfa uygulaması (SPA) deneyimi için Vite, React ve React Router ile geliştirildi.
+🚀 Production-Ready: Backend serves frontend static files
 
-💅 Şık ve Duyarlı Arayüz: Tüm cihazlarda çalışan tutarlı ve erişilebilir bir tasarım sağlayan Chakra UI ile stillendirildi.
-
-📦 State Yönetimi: React'in Context API ve Reducer hook'ları kullanılarak merkezi bir state yönetimi sağlandı.
-
-🛒 Tam CRUD İşlevselliği: Ürünler için oluşturma, okuma, güncelleme ve silme (CRUD) operasyonları.
-
-🗂️ Dinamik Kategoriler: Ürünler, backend'den dinamik olarak çekilen kategorilere göre organize edilir.
-
-🔍 Gelişmiş Arama ve Filtreleme: Gerçek zamanlı ürün arama ve kategoriye göre filtreleme.
-
-🌙 Aydınlık ve Karanlık Mod: Daha iyi bir kullanıcı deneyimi için dahili tema değiştirme özelliği.
-
-🚀 Üretime Hazır Backend: Express sunucusu, üretim ortamında statik frontend dosyalarını sunacak şekilde yapılandırılmıştır, bu da dağıtımı kolaylaştırır.
-
-Kullanılan Teknolojiler
-
+🛠️ Built With
 Frontend:
 
 React
 
 Vite
 
-React Router
-
 Chakra UI
+
+React Router
 
 Framer Motion
 
@@ -202,97 +143,69 @@ Node.js
 
 Express.js
 
-MongoDB
-
-Mongoose
+MongoDB & Mongoose
 
 CORS
 
 dotenv
 
-Başlangıç
-
-Projeyi yerel makinenizde kurup çalıştırmak için bu basit adımları izleyin.
-
-Ön Gereksinimler
-
-Node.js (v18 veya üstü önerilir)
+⚙️ Installation
+Requirements
+Node.js (v18+)
 
 npm
 
-MongoDB (Yerel bir kurulum veya MongoDB Atlas üzerinden ücretsiz bir bulut veritabanı kullanabilirsiniz)
+MongoDB (local or Atlas)
 
-Kurulum
-
-Projeyi klonlayın:
-
-
-git clone https://github.com/kullanici-adiniz/carsi.git
+Clone & Setup
+bash
+Kopyala
+Düzenle
+git clone https://github.com/your-username/carsi.git
 cd carsi
+Create a .env file:
 
-
-Projenin kök dizininde bir .env dosyası oluşturun ve ortam değişkenlerinizi ekleyin:
-
-Generated env
+env
+Kopyala
+Düzenle
 NODE_ENV=development
 PORT=5000
-MONGO_URI=mongodb_baglanti_adresiniz
+MONGO_URI=your_mongodb_connection_string
+Install dependencies:
 
-Env
-
-
-Backend bağımlılıklarını yükleyin:
-
-
+bash
+Kopyala
+Düzenle
 npm install
-
-
-Frontend bağımlılıklarını yükleyin:
-
-
 npm install --prefix frontend
+Development
+Backend:
 
-
-
-Bu komut, npm'e install işlemini frontend klasörü içinde çalıştırmasını söyler.
-
-Kullanım
-Geliştirme Modu
-
-Hem frontend hem de backend sunucularını geliştirme modunda eş zamanlı olarak çalıştırmak için:
-
-Backend sunucusunu başlatın (kök dizinden):
-
-Sunucu http://localhost:5000 adresinde çalışacaktır.
-
-
+bash
+Kopyala
+Düzenle
 npm run dev
+# Runs on http://localhost:5000
+Frontend:
 
-
-Frontend geliştirme sunucusunu başlatın (yeni bir terminalde, kök dizinden):
-
-Sunucu http://localhost:5173 adresinde çalışacaktır.
-
-
+bash
+Kopyala
+Düzenle
 npm run dev --prefix frontend
+# Runs on http://localhost:5173
+Production
+Build frontend:
 
-Artık uygulamaya http://localhost:5173 adresinden erişebilirsiniz.
-
-Üretim Modu
-
-Frontend uygulamasını build edip backend sunucusu üzerinden sunmak için:
-
-React uygulamasını build edin:
-
-Bu komut, tüm bağımlılıkları yükleyecek ve frontend/dist klasöründe optimize edilmiş bir üretim çıktısı oluşturacaktır.
-
+bash
+Kopyala
+Düzenle
 npm run build
+Start production server:
 
-Üretim sunucusunu başlatın:
-
-Bu komut, frontend dosyalarını da sunacak olan backend sunucusunu başlatır.
-
-
+bash
+Kopyala
+Düzenle
 npm start
-
-Artık üretime hazır uygulamaya http://localhost:5000 adresinden erişebilirsiniz.
+# Accessible on http://localhost:5000
+📄 License
+Distributed under the MIT License.
