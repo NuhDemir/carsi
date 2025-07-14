@@ -7,7 +7,7 @@
 
 
 > English version below ⬇️
-![Uygulama Görseli](https://raw.githubusercontent.com/NuhDemir/carsi/main/carsi.png)
+![Uygulama Görseli](https://raw.githubusercontent.com/NuhDemir/carsi/refs/heads/main/carsi.png?token=GHSAT0AAAAAADCOFTETIPHEFRI6H7UM6IES2DU5VSQ)
 
 
 
