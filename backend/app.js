@@ -21,8 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 
-// --- ÜRETİM ORTAMI İÇİN YAPILANDIRMA ---
-// Bu kısım artık doğru çalışacak çünkü __dirname kök dizini gösterecek.
 const __dirname = path.resolve();
 
 if (process.env.NODE_ENV === 'production') {

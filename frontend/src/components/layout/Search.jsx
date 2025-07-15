@@ -1,29 +1,69 @@
-// src/components/layout/Search.jsx
 import { useState, useEffect, useCallback, memo } from 'react';
 import {
   IconButton, Tooltip, useDisclosure, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalBody, ModalCloseButton, InputGroup, InputLeftElement, Input,
-  VStack, Box, Text, Kbd, useToast
+  VStack, Box, Text, Kbd
 } from '@chakra-ui/react';
 import { FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useProductContext } from '../../context/ProductContext';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinner from '../LoadingSpinner'; // Bu bileşenin projenizde olduğundan emin olun
 
 const Search = memo(() => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  // ... (Geri kalan tüm mantık aynı kalır)
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { searchProducts } = useProductContext();
   const navigate = useNavigate();
-  const toast = useToast();
 
-  useEffect(() => { /* ... */ }, [onOpen]);
-  const handleSearch = useCallback(async (term) => { /* ... */ }, [searchProducts, toast]);
-  useEffect(() => { /* ... */ }, [searchTerm, handleSearch]);
-  const handleProductClick = (productId) => { /* ... */ };
+  // Klavyeden Ctrl+K ile arama modalını açma
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.ctrlKey && event.key === 'k') {
+        event.preventDefault();
+        onOpen();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onOpen]);
+
+  // Arama işlemini gerçekleştiren fonksiyon
+  const handleSearch = useCallback(async (term) => {
+    // Arama terimi 2 karakterden kısaysa arama yapma ve sonuçları temizle
+    if (term.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setIsLoading(true);
+    // Context'teki searchProducts fonksiyonu zaten hata durumunda toast gösterir.
+    const results = await searchProducts(term);
+    setSearchResults(results || []); // Sonuç null/undefined ise boş dizi ata
+    setIsLoading(false);
+  }, [searchProducts]);
+
+  // Kullanıcı yazmayı bıraktıktan sonra aramayı tetikleyen effect (debounce)
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      handleSearch(searchTerm);
+    }, 300); // 300ms gecikme
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm, handleSearch]);
+  
+  // Modal kapandığında state'i temizleyen fonksiyon
+  const handleModalClose = () => {
+    onClose();
+    setSearchTerm('');
+    setSearchResults([]);
+  };
+  
+  // Arama sonucundaki bir ürüne tıklandığında ilgili ürün sayfasına yönlendirme
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+    handleModalClose(); 
+  };
 
 
   return (
@@ -38,7 +78,7 @@ const Search = memo(() => {
         />
       </Tooltip>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl">
         <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(5px)" />
         <ModalContent borderRadius="xl">
           <ModalHeader>Ürün Ara</ModalHeader>
@@ -46,7 +86,12 @@ const Search = memo(() => {
           <ModalBody pb={6}>
             <InputGroup>
               <InputLeftElement pointerEvents="none"><FiSearch color="gray.300" /></InputLeftElement>
-              <Input placeholder="Aranacak ürün..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} autoFocus />
+              <Input 
+                placeholder="Aranacak ürün..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                autoFocus 
+              />
             </InputGroup>
             
             {isLoading && <LoadingSpinner text="Aranıyor..." />}
@@ -59,8 +104,8 @@ const Search = memo(() => {
                     p={3} 
                     borderRadius="md" 
                     cursor="pointer" 
-                    // DEĞİŞİKLİK: Stil nesnesi sözdizimi kullanıldı.
-                    _hover={{ bg: { base: 'gray.100', _dark: 'gray.700' } }} 
+                    // DÜZELTİLDİ: _hover stili doğru sözdizimi ile yazıldı ve _dark kaldırıldı.
+                    _hover={{ bg: 'gray.100' }} 
                     onClick={() => handleProductClick(product._id)}
                   >
                     <Text fontWeight="medium">{product.name}</Text>
@@ -70,7 +115,7 @@ const Search = memo(() => {
               </VStack>
             )}
 
-            {!isLoading && searchTerm && searchResults.length === 0 && (
+            {!isLoading && searchTerm.length > 1 && searchResults.length === 0 && (
               <Text mt={4} textAlign="center" color="gray.500">Sonuç bulunamadı.</Text>
             )}
             <Text mt={4} textAlign="center" color="gray.500" fontSize="sm">
