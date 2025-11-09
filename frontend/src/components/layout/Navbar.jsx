@@ -1,126 +1,143 @@
-// src/components/layout/Navbar.jsx
+﻿import React, { memo, useEffect, useState } from 'react';
 import {
-  Box, Flex, HStack, IconButton, useDisclosure, Container, Slide, VStack,
-  Text, Divider, Menu, MenuButton, MenuList, MenuItem, Button, MenuDivider, Icon
+  Box,
+  Flex,
+  HStack,
+  IconButton,
+  useDisclosure,
+  Container,
+  Divider,
+  Text,
+  Icon,
 } from '@chakra-ui/react';
-import { FiMenu, FiX, FiShoppingBag, FiChevronDown } from 'react-icons/fi';
+import { FiMenu, FiShoppingBag } from 'react-icons/fi';
 import { Link as RouterLink } from 'react-router-dom';
-import { memo, useState, useEffect } from 'react';
 import { useProductContext } from '../../context/ProductContext';
+import { useAuth } from '../../context/AuthContext.jsx';
 
-// Modüler bileşenlerin importları
 import NavLink from './NavLink';
-import ThemeToggleButton from './ThemeToggleButton ';
+import ThemeToggleButton from './ThemeToggleButton';
 import Search from './Search';
 import UserMenu from './UserMenu';
 import NotificationMenu from './NotificationMenu';
+import MegaMenu from './MegaMenu';
+
+// Mobile components
+import MobileBottomNav from './MobileBottomNav';
+import MobileDrilldownMenu from './MobileDrilldownMenu';
+import MobileSearchModal from './MobileSearchModal';
 
 const Navbar = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // drilldown menu (hamburger) and mobile search modal
+  const drilldown = useDisclosure();
+  const mobileSearch = useDisclosure();
+
   const [scrolled, setScrolled] = useState(false);
   const { categories, fetchCategories } = useProductContext();
+  const { user } = useAuth();
+  const [cartCount, setCartCount] = useState(0);
 
-  // Sayfa scroll olduğunda navbar'a arkaplan ekleyen effect
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Kategorileri getiren effect
   useEffect(() => {
-    if (categories.length === 0) {
-      fetchCategories();
-    }
-  }, [categories.length, fetchCategories]);
+    if (!categories || categories.length === 0) fetchCategories();
+  }, [categories, fetchCategories]);
+
+  useEffect(() => {
+    const readCart = () => {
+      try {
+        const raw = localStorage.getItem('cart');
+        const parsed = raw ? JSON.parse(raw) : [];
+        setCartCount(Array.isArray(parsed) ? parsed.length : 0);
+      } catch {
+        setCartCount(0);
+      }
+    };
+    readCart();
+    const onStorage = (e) => {
+      if (e.key === 'cart') readCart();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const NAVIGATION_LINKS = [
     { name: 'Ana Sayfa', path: '/' },
-    { name: 'Oluştur', path: '/create' },
     { name: 'Keşfet', path: '/explore' },
   ];
 
   return (
     <Box
-      as="header"
-      position="sticky"
+      as= header
+      position=sticky
       top={0}
-      zIndex="sticky"
-      w="full"
-      bg={scrolled ? { base: 'rgba(255, 255, 255, 0.8)', _dark: 'rgba(26, 32, 44, 0.8)' } : 'transparent'}
+      zIndex=sticky
+      w=full
+      bg={scrolled ? { base: 'rgba(255,255,255,0.85)', _dark: 'rgba(26,32,44,0.85)' } : 'transparent'}
+      borderBottom=1px solid
       borderColor={scrolled ? { base: 'gray.200', _dark: 'gray.700' } : 'transparent'}
       backdropFilter={scrolled ? 'saturate(180%) blur(10px)' : 'none'}
-      borderBottom="1px solid"
-      transition="all 0.2s ease-in-out"
     >
-      <Container maxW="container.xl">
-        <Flex h={16} alignItems="center" justifyContent="space-between">
-          
-          {/* GÜNCELLEME: Sol Grup (Mobil menü, logo ve masaüstü linkleri) */}
-          <HStack spacing={4} alignItems="center">
-            {/* Mobil Menü Butonu (Sadece mobilde görünür) */}
+      <Container maxW=container.xl>
+        <Flex h={16} align=center justify=space-between>
+          <HStack spacing={3} align=center>
+            {/* hamburger for mobile -> opens drilldown */}
             <IconButton
               display={{ base: 'flex', md: 'none' }}
-              onClick={isOpen ? onClose : onOpen}
-              icon={isOpen ? <FiX /> : <FiMenu />}
-              variant="ghost"
-              aria-label="Menüyü Aç"
+              onClick={drilldown.onOpen}
+              icon={<FiMenu />}
+              aria-label=Menüyü Aç
+              variant=ghost
             />
-            
-            {/* Logo */}
-            <Flex align="center" as={RouterLink} to="/" _hover={{ opacity: 0.8 }}>
-              <Icon as={FiShoppingBag} h={6} w={6} color={{ base: 'blue.500', _dark: 'blue.300' }} />
-              <Text fontSize="xl" fontWeight="bold" ml={2} display={{ base: 'none', sm: 'block' }}>Çarşı</Text>
+
+            <Flex as={RouterLink} to='/' align='center' _hover={{ opacity: 0.9 }}>
+              <Icon as={FiShoppingBag} w={6} h={6} color={{ base: 'blue.500', _dark: 'blue.300' }} />
+              <Text ml={2} fontWeight='bold' fontSize='lg' display={{ base: 'block', sm: 'block' }}>
+                Çarşı
+              </Text>
             </Flex>
-            
-            {/* Masaüstü Navigasyon (Sadece masaüstünde görünür) */}
-            <HStack as="nav" spacing={1} display={{ base: 'none', md: 'flex' }}>
-              {NAVIGATION_LINKS.map((link) => (<NavLink key={link.path} to={link.path}>{link.name}</NavLink>))}
-              <Menu>
-                <MenuButton as={Button} variant="ghost" rightIcon={<FiChevronDown />} fontWeight="medium" color={{ base: 'gray.600', _dark: 'gray.400' }} _hover={{ bg: { base: 'gray.100', _dark: 'gray.700' } }}>
-                  Kategoriler
-                </MenuButton>
-                <MenuList borderRadius="lg" p={2} bg={{ base: 'white', _dark: 'gray.800' }}>
-                  <MenuItem as={RouterLink} to="/categories" borderRadius="md">Tüm Kategoriler</MenuItem>
-                  <MenuDivider />
-                  {categories.slice(0, 5).map((cat) => (
-                    <MenuItem as={RouterLink} to={`/category/${cat._id}`} key={cat._id} borderRadius="md">{cat.name}</MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
+
+            {/* desktop nav */}
+            <HStack as='nav' spacing={2} display={{ base: 'none', md: 'flex' }}>
+              {NAVIGATION_LINKS.map((l) => (
+                <NavLink key={l.path} to={l.path}>{l.name}</NavLink>
+              ))}
+              <MegaMenu categories={categories} />
             </HStack>
           </HStack>
 
-          {/* GÜNCELLEME: Sağ Grup (Aksiyon Butonları) */}
-          <HStack spacing={1} align="center">
-            <HStack spacing={1} display={{ base: 'none', md: 'flex' }}>
+          <HStack spacing={2} align='center'>
+            {/* desktop tools */}
+            <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
               <Search />
               <NotificationMenu />
               <ThemeToggleButton />
-              <Divider orientation="vertical" h="20px" borderColor={{ base: 'gray.300', _dark: 'gray.600' }} />
+              <Divider orientation='vertical' h='20px' />
             </HStack>
+
+            {/* mobile cart icon visible only on small screens */}
+            <IconButton
+              as={RouterLink}
+              to='/cart'
+              aria-label={Sepet ()}
+              icon={<FiShoppingBag />}
+              variant='ghost'
+              display={{ base: 'flex', md: 'none' }}
+            />
+
             <UserMenu />
           </HStack>
-
         </Flex>
       </Container>
-      
-      {/* Mobil Menü */}
-      <Slide direction="top" in={isOpen} style={{ zIndex: 10 }}>
-        <Box p={4} display={{ md: 'none' }} bg={{ base: 'white', _dark: 'gray.800' }} boxShadow="md">
-          <VStack as="nav" spacing={4}>
-            {/* GÜNCELLEME: Linke tıklayınca menüyü kapat */}
-            {NAVIGATION_LINKS.map((link) => (
-              <NavLink key={link.path} to={link.path} w="full" onClick={onClose}>{link.name}</NavLink>
-            ))}
-             <NavLink to="/categories" w="full" onClick={onClose}>Tüm Kategoriler</NavLink>
-          </VStack>
-        </Box>
-      </Slide>
+
+      {/* Mobile components wiring */}
+      <MobileDrilldownMenu isOpen={drilldown.isOpen} onClose={drilldown.onClose} categories={categories} />
+      <MobileSearchModal isOpen={mobileSearch.isOpen} onClose={mobileSearch.onClose} />
+      <MobileBottomNav onOpenMenu={drilldown.onOpen} onOpenSearch={mobileSearch.onOpen} />
     </Box>
   );
 };

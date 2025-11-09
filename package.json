@@ -6,7 +6,13 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon backend/server.js",
     "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
-    "start": "cross-env NODE_ENV=production node backend/server.js"
+    "start": "cross-env NODE_ENV=production node backend/server.js",
+    "seed-admin": "node backend/seeds/createAdmin.js",
+    "seed-categories": "node backend/seeds/createCategories.js",
+    "seed-products": "node backend/seeds/createProducts.js",
+    "seed-products-100": "node backend/seeds/createProducts100.js",
+    "seed-home": "node backend/seeds/seedHome.js",
+    "seed-all": "npm run seed-categories && npm run seed-products && npm run seed-admin && npm run seed-home"
   },
   "type": "module",
   "keywords": [],
@@ -18,7 +24,12 @@
     "dotenv": "^17.2.0",
     "express": "^4.19.2",
     "express-async-handler": "^1.2.0",
+    "helmet": "^8.1.0",
     "mongoose": "^8.16.3",
+    "morgan": "^1.10.1",
+    "jsonwebtoken": "^9.0.0",
+    "express-validator": "^6.15.0",
+    "bcryptjs": "^2.4.3",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {

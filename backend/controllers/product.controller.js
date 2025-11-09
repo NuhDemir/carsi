@@ -1,18 +1,50 @@
-import asyncHandler from 'express-async-handler';
-import mongoose from 'mongoose';
-import Product from '../models/product.model.js';
-import Category from '../models/category.model.js'; // Kategori kontrolü için gerekli olabilir
+import asyncHandler from "express-async-handler";
+import mongoose from "mongoose";
+import Product from "../models/product.model.js";
+import Category from "../models/category.model.js"; // Kategori kontrolü için gerekli olabilir
 
 // @desc    Tüm ürünleri veya bir kategoriye ait ürünleri getir
 // @route   GET /api/products
 // @route   GET /api/products/category/:categoryId
 // @access  Public
 export const getProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({})
-    .populate('category', 'name') // Kategori bilgisini (sadece ismini) ekle
-    .sort({ createdAt: -1 }); // En yeni ürünler üstte
+  // Pagination: ?page=1&limit=10
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
 
-  res.status(200).json(products);
+  // İsteğe bağlı filtreler
+  const filters = {};
+  if (req.query.category) {
+    filters.category = req.query.category;
+  }
+  if (req.query.minPrice)
+    filters.price = {
+      ...(filters.price || {}),
+      $gte: Number(req.query.minPrice),
+    };
+  if (req.query.maxPrice)
+    filters.price = {
+      ...(filters.price || {}),
+      $lte: Number(req.query.maxPrice),
+    };
+
+  const total = await Product.countDocuments(filters);
+
+  const products = await Product.find(filters)
+    .populate("category", "name") // Kategori bilgisini (sadece ismini) ekle
+    .sort({ createdAt: -1 }) // En yeni ürünler üstte
+    .skip(skip)
+    .limit(limit);
+
+  res.status(200).json({
+    success: true,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    data: products,
+  });
 });
 
 // @desc    Tek bir ürünü ID ile getir
@@ -22,16 +54,16 @@ export const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(404);
-    throw new Error('Geçersiz ürün IDsi.');
+    throw new Error("Geçersiz ürün IDsi.");
   }
 
-  const product = await Product.findById(id).populate('category', 'name');
+  const product = await Product.findById(id).populate("category", "name");
 
   if (product) {
     res.status(200).json(product);
   } else {
     res.status(404);
-    throw new Error('Ürün bulunamadı.');
+    throw new Error("Ürün bulunamadı.");
   }
 });
 
@@ -43,20 +75,27 @@ export const createProduct = asyncHandler(async (req, res) => {
   const { name, price, image, description, category, stock } = req.body;
 
   // Temel doğrulama
-  if (!name || !price || !image || !description || !category || stock === undefined) {
+  if (
+    !name ||
+    !price ||
+    !image ||
+    !description ||
+    !category ||
+    stock === undefined
+  ) {
     res.status(400);
-    throw new Error('Lütfen tüm zorunlu alanları doldurun.');
+    throw new Error("Lütfen tüm zorunlu alanları doldurun.");
   }
-  
+
   // Kategori ID'sinin geçerli olup olmadığını kontrol et
   if (!mongoose.Types.ObjectId.isValid(category)) {
-      res.status(400);
-      throw new Error('Geçersiz kategori IDsi.');
+    res.status(400);
+    throw new Error("Geçersiz kategori IDsi.");
   }
   const categoryExists = await Category.findById(category);
   if (!categoryExists) {
-      res.status(404);
-      throw new Error('Belirtilen kategori bulunamadı.');
+    res.status(404);
+    throw new Error("Belirtilen kategori bulunamadı.");
   }
 
   const product = new Product({
@@ -70,7 +109,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   });
 
   const createdProduct = await product.save();
-  const populatedProduct = await createdProduct.populate('category', 'name'); // Cevapta kategori adını da gönder
+  const populatedProduct = await createdProduct.populate("category", "name"); // Cevapta kategori adını da gönder
   res.status(201).json(populatedProduct);
 });
 
@@ -83,14 +122,14 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(404);
-    throw new Error('Geçersiz ürün IDsi.');
+    throw new Error("Geçersiz ürün IDsi.");
   }
 
   const product = await Product.findById(id);
 
   if (!product) {
     res.status(404);
-    throw new Error('Ürün bulunamadı.');
+    throw new Error("Ürün bulunamadı.");
   }
 
   // Güncelleme
@@ -102,7 +141,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   product.stock = stock !== undefined ? stock : product.stock;
 
   const updatedProduct = await product.save();
-  const populatedProduct = await updatedProduct.populate('category', 'name');
+  const populatedProduct = await updatedProduct.populate("category", "name");
   res.status(200).json(populatedProduct);
 });
 
@@ -113,27 +152,53 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(404);
-    throw new Error('Geçersiz ürün IDsi.');
+    throw new Error("Geçersiz ürün IDsi.");
   }
 
   const product = await Product.findByIdAndDelete(id);
 
   if (!product) {
     res.status(404);
-    throw new Error('Silinecek ürün bulunamadı.');
+    throw new Error("Silinecek ürün bulunamadı.");
   }
 
-  res.status(200).json({ id: product._id, message: 'Ürün başarıyla silindi.' });
+  res.status(200).json({ id: product._id, message: "Ürün başarıyla silindi." });
 });
 
 // @desc    Ürünleri anahtar kelimeye göre ara
 // @route   GET /api/products/search
 // @access  Public
 export const searchProducts = asyncHandler(async (req, res) => {
-  const query = req.query.q ? { $text: { $search: req.query.q } } : {};
-  
-  const products = await Product.find(query).populate('category', 'name');
-  res.status(200).json(products);
+  const q = req.query.q;
+  if (!q) {
+    return res.status(200).json({ success: true, data: [] });
+  }
+
+  // Eğer text index mevcutsa kullan; yoksa regex ile fallback
+  let products;
+  try {
+    products = await Product.find({ $text: { $search: q } }).populate(
+      "category",
+      "name"
+    );
+    // Eğer text search sonuç vermediyse veya text index yoksa boş dönebilir -> fallback
+    if (!products || products.length === 0) {
+      const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      products = await Product.find({
+        $or: [{ name: regex }, { description: regex }],
+      }).populate("category", "name");
+    }
+  } catch (err) {
+    // text index yoksa MongoError gelebilir; fallback olarak regex dene
+    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    products = await Product.find({
+      $or: [{ name: regex }, { description: regex }],
+    }).populate("category", "name");
+  }
+
+  res
+    .status(200)
+    .json({ success: true, count: products.length, data: products });
 });
 
 // @desc    Ürünleri kategoriye göre filtrele
@@ -141,14 +206,14 @@ export const searchProducts = asyncHandler(async (req, res) => {
 // @access  Public
 export const getProductsByCategory = asyncHandler(async (req, res) => {
   const { categoryId } = req.params;
-  
+
   if (!mongoose.Types.ObjectId.isValid(categoryId)) {
     res.status(400);
-    throw new Error('Geçersiz kategori IDsi.');
+    throw new Error("Geçersiz kategori IDsi.");
   }
 
   const products = await Product.find({ category: categoryId })
-    .populate('category', 'name')
+    .populate("category", "name")
     .sort({ createdAt: -1 });
 
   res.status(200).json(products);
@@ -166,8 +231,8 @@ export const getProductsByPriceRange = asyncHandler(async (req, res) => {
   const products = await Product.find({
     price: { $gte: minPrice, $lte: maxPrice },
   })
-  .populate('category', 'name')
-  .sort({ price: 1 }); // Fiyata göre artan sırala
+    .populate("category", "name")
+    .sort({ price: 1 }); // Fiyata göre artan sırala
 
   res.status(200).json(products);
 });
@@ -176,29 +241,29 @@ export const getProductsByPriceRange = asyncHandler(async (req, res) => {
 // @route   PATCH /api/products/:id/stock
 // @access  Private/Admin
 export const updateProductStock = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { stock } = req.body;
+  const { id } = req.params;
+  const { stock } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(404);
-        throw new Error('Geçersiz ürün IDsi.');
-    }
-    
-    if (stock === undefined || Number(stock) < 0) {
-        res.status(400);
-        throw new Error('Geçerli bir stok değeri girilmelidir.');
-    }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(404);
+    throw new Error("Geçersiz ürün IDsi.");
+  }
 
-    const product = await Product.findById(id);
+  if (stock === undefined || Number(stock) < 0) {
+    res.status(400);
+    throw new Error("Geçerli bir stok değeri girilmelidir.");
+  }
 
-    if (!product) {
-        res.status(404);
-        throw new Error('Ürün bulunamadı.');
-    }
+  const product = await Product.findById(id);
 
-    product.stock = stock;
-    const updatedProduct = await product.save();
-    const populatedProduct = await updatedProduct.populate('category', 'name');
+  if (!product) {
+    res.status(404);
+    throw new Error("Ürün bulunamadı.");
+  }
 
-    res.status(200).json(populatedProduct);
+  product.stock = stock;
+  const updatedProduct = await product.save();
+  const populatedProduct = await updatedProduct.populate("category", "name");
+
+  res.status(200).json(populatedProduct);
 });
