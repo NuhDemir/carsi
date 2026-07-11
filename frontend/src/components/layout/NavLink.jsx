@@ -3,7 +3,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Link } from '@chakra-ui/react';
 import { memo } from 'react';
 
-const NavLink = memo(({ to, children, ...rest }) => {
+const NavLink = memo(({ to, children, icon, ...rest }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 

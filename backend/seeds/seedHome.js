@@ -8,10 +8,10 @@ import Testimonial from "../models/testimonial.model.js";
 import Deal from "../models/deal.model.js";
 import Product from "../models/product.model.js";
 
-// Load backend/.env specifically
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, "..", ".env") });
+// dotenv.config({ path: path.join(__dirname, "..", ".env") });
+process.env.MONGO_URI = "mongodb+srv://nuhdemirdev:4pV1QM1OxNSYpwNG@cluster0.sasdnqp.mongodb.net/carsi?retryWrites=true&w=majority";
 
 const run = async () => {
   try {
