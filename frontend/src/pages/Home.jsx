@@ -63,21 +63,56 @@ const Home = () => {
     );
 
   return (
-    <Box>
+    <Box
+      pb={{ base: "80px", md: 8 }}
+      sx={{
+        // Hide scrollbar for product strips
+        ".product-strip-container": {
+          scrollbarWidth: "none", // Firefox
+          msOverflowStyle: "none", // IE and Edge
+          "&::-webkit-scrollbar": {
+            display: "none", // Chrome, Safari and Opera
+          },
+        },
+      }}
+    >
       <Hero campaign={homeData.hero} />
-      <Container maxW="container.xl">
-        <TrustBar items={homeData.trustSignals} />
-        <CategoryShowcase categories={homeData.featuredCategories} />
-        <ProductStrip title="Çok Satanlar" products={homeData.bestsellers} />
-        <ProductStrip
-          title="Günün Fırsatları"
-          products={homeData.deals?.map((d) => d.product) || []}
-          showCountdown
-          productsDeals={homeData.deals}
-        />
-        <ProductStrip title="Yeni Gelenler" products={homeData.newArrivals} />
+
+      <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+        <VStack spacing={{ base: 8, md: 12 }} align="stretch">
+          {/* Trust Signals */}
+          <TrustBar items={homeData.trustSignals} />
+
+          {/* Featured Categories */}
+          <CategoryShowcase categories={homeData.featuredCategories} />
+
+          {/* Bestsellers */}
+          <ProductStrip
+            title="Çok Satanlar"
+            products={homeData.bestsellers}
+            hideScrollbar
+          />
+
+          {/* Daily Deals */}
+          <ProductStrip
+            title="Günün Fırsatları"
+            products={homeData.deals?.map((d) => d.product) || []}
+            showCountdown
+            productsDeals={homeData.deals}
+            hideScrollbar
+          />
+
+          {/* New Arrivals */}
+          <ProductStrip
+            title="Yeni Gelenler"
+            products={homeData.newArrivals}
+            hideScrollbar
+          />
+        </VStack>
       </Container>
-      <VStack spacing={6} mt={12} />
+
+      {/* Spacer for mobile bottom nav */}
+      <Box h={{ base: 4, md: 8 }} />
     </Box>
   );
 };

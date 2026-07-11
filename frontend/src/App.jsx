@@ -80,7 +80,12 @@ function App() {
             transition="background-color 0.2s"
           >
             <Navbar />
-            <Container as="main" maxW="container.xl" py={{ base: 6, md: 8 }}>
+            <Container
+              as="main"
+              maxW="container.xl"
+              py={{ base: 6, md: 8 }}
+              pb={{ base: "80px", md: 8 }} // Extra padding for mobile bottom nav
+            >
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route path="/" element={<Home />} />
